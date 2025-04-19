@@ -1,4 +1,5 @@
 #include "PmergeMe.hpp"
+#include <climits>
 
 bool argCheck(int argc, char **argv, intVec &args){
     for(int i=1;i<argc;i++){

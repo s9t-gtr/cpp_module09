@@ -17,6 +17,6 @@ int main(int argc, char** argv){
             std::cout << e.what() << std::endl;
         }
     }else{
-        std::cout << "Usage: Arguments must be at least 1 and less than 10" << std::endl;
+        std::cout << "Error" << std::endl;
     }
 }

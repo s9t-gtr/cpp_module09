@@ -9,7 +9,7 @@
 BitcoinExchange::BitcoinExchange() {}
 
 BitcoinExchange::BitcoinExchange(const std::string& databasePath) {
-    std::ifstream file(databasePath);
+    std::ifstream file(databasePath.c_str());
     if (!file.is_open())
         throw FileOpenFailed();
 
@@ -116,7 +116,7 @@ std::string BitcoinExchange::findClosestDate(const std::string& date) const {
 
 // Main processing methods
 void BitcoinExchange::processInputFile(const std::string& inputPath) {
-    std::ifstream file(inputPath);
+    std::ifstream file(inputPath.c_str());
     if (!file.is_open())
         throw FileOpenFailed();
 

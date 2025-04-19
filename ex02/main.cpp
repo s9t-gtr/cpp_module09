@@ -1,4 +1,5 @@
 #include "PmergeMe.hpp"
+#include <sys/time.h>
 #include <iomanip>
 void createPair(pairVec &pairs, intpVec &large, intpVec refVec){
     for(size_t i=1;i<refVec.size();i+=2){
@@ -20,8 +21,8 @@ bool sortCheck(intpVec& vec){
     }
     return true;
 }
+
 int main(int argc, char **argv){
-    std::chrono::system_clock::time_point  start, end; // 型は auto で可
     intVec args;
     if(argc < 3 || !argCheck(argc, argv, args)){
         std::cerr << "Error: invalid arguments" << std::endl;
@@ -40,24 +41,34 @@ int main(int argc, char **argv){
         pArgs[i] = &args[i];
     }
 
-   
 
-    start = std::chrono::system_clock::now(); // 計測開始時間
-    vecSort.sort(pArgs);
-    end = std::chrono::system_clock::now();  // 計測終了時間
-
-    std::cout << "After: ";
-    vecSort.printContainerElements();
-
-    double elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end-start).count();
-    std::cout << std::fixed << std::setprecision(5) <<"Time to process a range of " << args.size() <<" elements with std::[..] : " <<  elapsed / 1000 / 1000 /100 << " us" << std::endl;
+  	struct timeval start, end;
+	gettimeofday(&start, NULL); // 計測開始
+	vecSort.sort(pArgs);
+	gettimeofday(&end, NULL);   // 計測終了
+	
+	std::cout << "After: ";
+	vecSort.printContainerElements();
+	
+	// 経過時間をマイクロ秒（us）単位でdoubleとして取得
+	double elapsed_us = (end.tv_sec - start.tv_sec) * 1e6 
+	                  + (end.tv_usec - start.tv_usec);
+	
+	// 小数付きのマイクロ秒として表示（例: 0.00031 us）
+	std::cout << std::fixed << std::setprecision(5)
+	          << "Time to process a range of " << args.size()
+	          << " elements with std::[..] : " << elapsed_us << " us" << std::endl;
     //std::cout << "=====================================================" << std::endl;
 
-    elapsed = 0;
+    elapsed_us = 0;
     PmergeMe<std::list<int *> > lstSort(args.size());
-    start = std::chrono::system_clock::now(); // 計測開始時間
+	gettimeofday(&start, NULL); // 計測開始
     lstSort.sort(pArgs);
-    end = std::chrono::system_clock::now();  // 計測終了時間
-    elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end-start).count();
-    std::cout << std::fixed << std::setprecision(5) <<"Time to process a range of " << args.size() <<" elements with std::[..] : " << elapsed / 1000 / 1000 / 100 << " us" << std::endl;
+	gettimeofday(&end, NULL); // 計測開始
+	
+	elapsed_us = (end.tv_sec - start.tv_sec) * 1e6 
+	                  + (end.tv_usec - start.tv_usec);
+	std::cout << std::fixed << std::setprecision(5)
+	          << "Time to process a range of " << args.size()
+	          << " elements with std::[..] : " << elapsed_us << " us" << std::endl;
 }

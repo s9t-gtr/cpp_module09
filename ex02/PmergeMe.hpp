@@ -2,6 +2,8 @@
 # define PMERGEME_HPP
 
 #include "Node.hpp"
+#include <cmath>
+#include <ctime>
 #include <iostream>
 #include <list>
 #include <vector>
@@ -84,84 +86,97 @@ size_t PmergeMe<Container>::searchPairCorrespondingToContainer(const int *largeV
 }
 
 template <typename Container>
-size_t PmergeMe<Container>::getInsertArea(int *largeValueInInsertPair){
-    for(size_t i=0;i<container.size();i++){
-        if(*(std::next(container.begin(), i)) == largeValueInInsertPair)
+size_t PmergeMe<Container>::getInsertArea(int *largeValueInInsertPair) {
+    typename Container::iterator it = container.begin();
+    for (size_t i = 0; i < container.size(); ++i, ++it) {
+        if (*it == largeValueInInsertPair)
             return i;
     }
-    return container.size(); //surplusの時に入る
-    // std::cout << "bug: not found largeValueInInsertPair in container" << std::endl;
-    // return 0; 
+    return container.size(); // surplus のとき
 }
 
 template <typename Container>
-typename Container::iterator PmergeMe<Container>::getIdxByBinarySearch(int *largeValueInInsertPair, size_t jacob, int *smallValueInInsertPair){
+typename Container::iterator PmergeMe<Container>::getIdxByBinarySearch(int *largeValueInInsertPair, size_t jacob, int *smallValueInInsertPair) {
     size_t lower = 0;
     size_t upper = getInsertArea(largeValueInInsertPair);
 
-    if(jacob == 1)
+    if (jacob == 1)
         return container.begin();
 
-    while(lower < upper){
-        size_t mid = std::floor(lower + (upper - lower) / 2);   
-        if(*(*(std::next(container.begin(), mid))) < *(smallValueInInsertPair))
+    while (lower < upper) {
+        size_t mid = lower + (upper - lower) / 2;
+
+        // mid番目のイテレータを取得
+        typename Container::iterator midIt = container.begin();
+        for (size_t i = 0; i < mid; ++i)
+            ++midIt;
+
+        if (**midIt < *smallValueInInsertPair)
             lower = mid + 1;
         else
             upper = mid;
     }
-    return std::next(container.begin(), upper);
+
+    // upper番目のイテレータを取得
+    typename Container::iterator result = container.begin();
+    for (size_t i = 0; i < upper; ++i)
+        ++result;
+
+    return result;
 }
 
 void createPair(pairVec &pairs, intpVec &large, intpVec refVec);
 bool sortCheck(intpVec& vec);
 
+
 template <typename Container>
-void PmergeMe<Container>::sort(intpVec vec){
-    // std::cout << "==========  merge  ==========" <<std::endl;
-    pairVec pairs(vec.size()/2);
-    intpVec large(vec.size()/2);
-    int *surplas = vec.size() % 2 == 1 ? vec[vec.size()-1] : NULL;
+void PmergeMe<Container>::sort(intpVec vec) {
+    pairVec pairs(vec.size() / 2);
+    intpVec large(vec.size() / 2);
+    int* surplas = vec.size() % 2 == 1 ? vec[vec.size() - 1] : NULL;
     createPair(pairs, large, vec);
 
-    // std::cout << "large: " << std::endl;
-    // for(size_t i=0;i<large.size();i++){
-    //     std::cout << " " << *(large[i]);
-    // }
-    // std::cout << std::endl;
-
-    if(!sortCheck(large))
+    if (!sortCheck(large))
         sort(large);
     else
         container.assign(large.begin(), large.end());
-    // insert to container from large;
-    // std::cout << "==========  insert  ==========" <<std::endl;
-    size_t xn1 = 0; //xn-1
-    size_t xn2 = 0; //xn-2
+
+    size_t xn1 = 0;
+    size_t xn2 = 0;
     Container copyContainer = container;
-    for(size_t xn=1; xn <= pairs.size();xn++){
-        if(xn >= 2){
-            xn = xn1 + 2*xn2;
-            if(xn > pairs.size())
+
+    for (size_t xn = 1; xn <= pairs.size(); xn++) {
+        if (xn >= 2) {
+            xn = xn1 + 2 * xn2;
+            if (xn > pairs.size())
                 xn = pairs.size();
         }
-        // std::cout << "jacob num = " << xn << std::endl;
-        //ヤコブスタール数xより小さいペア番号 かつ 未挿入のsmallを持つペア をx-1, x-2, x-3...順で、xn1 + 1まで挿入していく
-        for(size_t i=xn;i>xn1;i--){
-            size_t pairIdx = searchPairCorrespondingToContainer(*(std::next(copyContainer.begin(), i-1)), pairs);//コンテナはソート済み。コンテナのば盤面に対応するペアのidxを返す　
-            typename Container::iterator insertIt = getIdxByBinarySearch(*(std::next(copyContainer.begin() ,i-1)), i, pairs[pairIdx].first);
+
+        for (size_t i = xn; i > xn1; i--) {
+            // i-1番目の要素に対応するイテレータを取得
+            typename Container::iterator it = copyContainer.begin();
+            for (size_t j = 0; j < i - 1; ++j)
+                ++it;
+
+            size_t pairIdx = searchPairCorrespondingToContainer(*it, pairs);
+
+            typename Container::iterator insertTarget = copyContainer.begin();
+            for (size_t j = 0; j < i - 1; ++j)
+                ++insertTarget;
+
+            typename Container::iterator insertIt = getIdxByBinarySearch(*insertTarget, i, pairs[pairIdx].first);
             container.insert(insertIt, pairs[pairIdx].first);
         }
+
         xn2 = xn1;
         xn1 = xn;
     }
-    if(surplas){
+
+    if (surplas) {
         typename Container::iterator insertIt = getIdxByBinarySearch(0, 0, surplas);
         container.insert(insertIt, surplas);
     }
-    return ;
 }
-
-
 
 // template <typename Container>
 // void PmergeMe<Container>::insert(){
@@ -180,13 +195,13 @@ void PmergeMe<Container>::sort(intpVec vec){
 // }
 
 template <typename Container>
-void PmergeMe<Container>::printContainerElements(){
-    for(size_t i=0;i<container.size();i++){
-        std::cout << " " << *(*(std::next(container.begin(),i)));
+void PmergeMe<Container>::printContainerElements() {
+    typename Container::iterator it = container.begin();
+    for (size_t i = 0; i < container.size(); ++i, ++it) {
+        std::cout << " " << **it;
     }
     std::cout << std::endl;
 }
-
 
 template <typename Container>
 PmergeMe<Container>::InvalidArgument::InvalidArgument(const std::string message): std::invalid_argument(message){}

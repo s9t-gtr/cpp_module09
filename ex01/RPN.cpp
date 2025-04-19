@@ -77,18 +77,18 @@ void RPN::execOperation(int a, int b, char operatorType){
 }
 
 const char *RPN::InvalidArgValue::what() const throw(){
-    return "Error: Only 1-digit numbers or arithmetic operation symbols are supported.";
+    return "Error";
 }
 
 const char *RPN::InvalidArgGrammer::what() const throw(){
-    return "Error: There is a problem with the given expression";
+    return "Error";
 }
 const char *RPN::DivisionByZero::what() const throw(){
-    return "Error: Contains division by zero";
+    return "Error";
 }
 const char *RPN::InvalidSpaceUsage::what() const throw(){
-    return "Error: Let me consistent in how to use Space";
+    return "Error";
 }
 const char *RPN::InvalidArgNum::what() const throw(){
-    return "Usage: Arguments must be at least 1 and less than 10";
+    return "Error";
 }
