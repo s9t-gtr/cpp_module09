@@ -5,47 +5,54 @@
 #include <fstream>
 #include <map>
 #include <sstream>
+#include <string>
+#include <stdexcept>
+
+#define DATABASE_PATH "cpp_09/data.csv"
 
 typedef std::map<std::string, float> dataMap;
 
-class BitcoinExchange{
-    private:
-        BitcoinExchange();
-    public:
-        BitcoinExchange(std::string dataBasePath);
-        ~BitcoinExchange();
-        BitcoinExchange(const BitcoinExchange& other);
-        BitcoinExchange& operator=(const BitcoinExchange& other);
-    public:
-        dataMap *readDataBase(std::string dataBasePath);
-        void readInputData(std::string inputFilePath) throw();
-        void calcAndOutput() const;
-    private:
-        std::pair<std::string, float> createPair(std::string& buf);
-    private:
-        dataMap *dataBase;
-        std::string data;
-    public:
-        class NotPositiveValue: public std::exception{
-            public:
-                const char* what() const throw();
-        };
-        class TooLargeNumber: public std::exception{
-            public:
-                const char* what() const throw();
-        };
-        class BadInputDate: public std::exception{
-            public:
-                const std::string errorMessage(std::string inputDate) const throw();
-        };
-        class BadInputValue: public std::exception{
-            public:
-                const std::string errorMessage(std::string inputValue) const throw();
-        }; 
-        class FileOpenFailed: public std::exception{
-            public:
-                const char* what() const throw();
-        };
+class BitcoinExchange {
+private:
+    std::map<std::string, float> _database;
+    
+    // Private helper methods
+    bool isValidDate(const std::string& date) const;
+    bool isValidValue(const std::string& value) const;
+    float parseValue(const std::string& value) const;
+    std::string findClosestDate(const std::string& date) const;
+    
+public:
+    BitcoinExchange();
+    BitcoinExchange(const std::string& databasePath);
+    ~BitcoinExchange();
+    BitcoinExchange(const BitcoinExchange& other);
+    BitcoinExchange& operator=(const BitcoinExchange& other);
 
+    void processInputFile(const std::string& inputPath);
+    void processLine(const std::string& line);
+
+    // Exception classes
+    class NotPositiveValue : public std::exception {
+        public: const char* what() const throw();
+    };
+    
+    class TooLargeNumber : public std::exception {
+        public: const char* what() const throw();
+    };
+    
+    class BadInput : public std::exception {
+    private:
+        std::string _error;
+    public:
+        BadInput(const std::string& input) : _error("bad input => " + input) {}
+        virtual ~BadInput() throw() {}
+        const char* what() const throw() { return _error.c_str(); }
+    };
+    
+    class FileOpenFailed : public std::exception {
+        public: const char* what() const throw();
+    };
 };
+
 #endif
