@@ -13,7 +13,7 @@ int main(int argc, char** argv){
             std::cout << e.what() << std::endl;
         }catch(RPN::InvalidSpaceUsage &e){
             std::cout << e.what() << std::endl;
-        }catch(RPN::InvalidArgNum &e){
+        }catch(RPN::Overflow &e){
             std::cout << e.what() << std::endl;
         }
     }else{

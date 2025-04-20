@@ -6,7 +6,6 @@
 
 //argcの値なので./RPNの分*1する
 #define RPN_ARG_CNT 2
-#define RPN_NUM_MAX 9
 
 #define OPERABLE_STACK_SIZE 2
 
@@ -50,7 +49,7 @@ class RPN{
             public:
                 const char *what() const throw();
         };
-        class InvalidArgNum: public std::exception{
+        class Overflow: public std::exception{
             public:
                 const char *what() const throw();
         };
