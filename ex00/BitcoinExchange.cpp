@@ -105,13 +105,19 @@ std::string BitcoinExchange::findClosestDate(const std::string& date) const {
     if (_database.empty()) return "";
     
     std::map<std::string, float>::const_iterator it = _database.lower_bound(date);
+    
+    // If the date is before all dates in the database
     if (it == _database.begin()) return it->first;
+    
+    // If the date is after all dates in the database
     if (it == _database.end()) return (--it)->first;
     
-    std::map<std::string, float>::const_iterator prev = it;
-    --prev;
+    // If the exact date exists, return it
+    if (it->first == date) return date;
     
-    return prev->first;
+    // Otherwise return the previous date
+    --it;
+    return it->first;
 }
 
 // Main processing methods

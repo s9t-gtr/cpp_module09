@@ -1,24 +1,34 @@
 CPPS = main.cpp PmergeMe.cpp
 
-OBJS = ${CPPS:.cpp=.o}
+OBJS = $(CPPS:%.cpp=$(OBJS_DIR)/%.o)
 
-DEPS = $(CPPS:.cpp=.d)
+DEPS = $(CPPS:%.cpp=$(DEPS_DIR)/%.d)
 
 NAME = PmergeMe
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -MMD
+XXFLAGS = -Wall -Wextra -Werror -std=c++98
 
--include $(DEPS);
+OBJS_DIR = objs
+DEPS_DIR = deps
+
+$(OBJS_DIR)/%.o: %.cpp 
+	@mkdir -p $(OBJS_DIR) $(DEPS_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ -c -MMD -MP -MF  $(addprefix $(DEPS_DIR)/, $(notdir $(@:%.o=%.d))) $<
 
 $(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
 .PHONY: all clean fclean re
 all: $(NAME);
 
 clean: 
-	rm -f $(OBJS)
-	rm -f *.d
+	rm -rf $(OBJS_DIR)
+	rm -rf $(DEPS_DIR)
+
 fclean: clean
 	rm -f $(NAME)
 
 re: fclean all;
+
+
+-include ${DEPS}
