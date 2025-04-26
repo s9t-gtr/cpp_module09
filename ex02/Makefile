@@ -6,7 +6,7 @@ DEPS = $(CPPS:%.cpp=$(DEPS_DIR)/%.d)
 
 NAME = PmergeMe
 CXX = c++
-XXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g3
 
 OBJS_DIR = objs
 DEPS_DIR = deps

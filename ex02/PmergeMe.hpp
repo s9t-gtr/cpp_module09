@@ -10,7 +10,7 @@
 
 #define FAILURE 1
 #define ASCII_TO_DIGIT 48
-
+extern int g_compare_cnt;
 typedef std::vector<int> intVec;
 typedef std::vector<int *> intpVec;
 typedef std::list<int *> intpLst;
@@ -32,7 +32,7 @@ class PmergeMe{
         void copySortLargeToContainer(intpVec &large);
         typename Container::iterator getIdxByBinarySearch(int *largeValueInInsertPair, size_t jacob, int *smallValueInInsertPair);
         size_t getInsertArea(int *largeValueInInsertPair);
-        size_t searchPairCorrespondingToContainer(const int *largeValue, const pairVec &pairs);
+        int searchPairCorrespondingToContainer(const int *largeValue, const pairVec &pairs);
         void insert();
     public:
         void sort(intpVec vec);
@@ -51,7 +51,6 @@ bool argCheck(int argc, char **argv, intVec &args);
 
 template <typename Container>
 PmergeMe<Container>::PmergeMe(size_t argLen){
-    // container.reserve(argLen);
     (void)argLen;
 }
 
@@ -75,13 +74,12 @@ PmergeMe<Container>& PmergeMe<Container>::operator=(const PmergeMe<Container>& o
 
 
 template <typename Container>
-size_t PmergeMe<Container>::searchPairCorrespondingToContainer(const int *largeValue,  const pairVec &pairs){
+int PmergeMe<Container>::searchPairCorrespondingToContainer(const int *largeValue,  const pairVec &pairs){
     for(size_t i=0;i<pairs.size();i++){
         if(pairs[i].second == largeValue)
             return i;
     }
-    std::cout << "bug: not found largeValue in pairs: largeValue = " << *largeValue << "pointer" << std::endl;
-    return 0;
+    return -1;
 }
 
 template <typename Container>
@@ -114,8 +112,8 @@ typename Container::iterator PmergeMe<Container>::getIdxByBinarySearch(int *larg
             lower = mid + 1;
         else
             upper = mid;
-    }
-
+        g_compare_cnt++;
+    } 
     // upper番目のイテレータを取得
     typename Container::iterator result = container.begin();
     for (size_t i = 0; i < upper; ++i)
@@ -143,37 +141,35 @@ void PmergeMe<Container>::sort(intpVec vec) {
     size_t xn1 = 0;
     size_t xn2 = 0;
     Container copyContainer = container;
-
-    for (size_t xn = 1; xn <= pairs.size(); xn++) {
+    size_t len = pairs.size();
+    if (surplas) len++;
+    for (size_t xn = 1; xn <= len; xn++) {
         if (xn >= 2) {
             xn = xn1 + 2 * xn2;
-            if (xn > pairs.size())
-                xn = pairs.size();
+            if (xn > len)
+                xn = len;
         }
-
         for (size_t i = xn; i > xn1; i--) {
             // i-1番目の要素に対応するイテレータを取得
             typename Container::iterator it = copyContainer.begin();
             for (size_t j = 0; j < i - 1; ++j)
                 ++it;
 
-            size_t pairIdx = searchPairCorrespondingToContainer(*it, pairs);
+            int pairIdx = searchPairCorrespondingToContainer(*it, pairs);
 
             typename Container::iterator insertTarget = copyContainer.begin();
             for (size_t j = 0; j < i - 1; ++j)
                 ++insertTarget;
-
-            typename Container::iterator insertIt = getIdxByBinarySearch(*insertTarget, i, pairs[pairIdx].first);
-            container.insert(insertIt, pairs[pairIdx].first);
+            if (pairIdx == -1){
+                typename Container::iterator insertIt = getIdxByBinarySearch(NULL, i, surplas);
+                container.insert(insertIt, surplas);
+            } else {
+                typename Container::iterator insertIt = getIdxByBinarySearch(*insertTarget, i, pairs[pairIdx].first);
+                container.insert(insertIt, pairs[pairIdx].first);
+            }
         }
-
         xn2 = xn1;
         xn1 = xn;
-    }
-
-    if (surplas) {
-        typename Container::iterator insertIt = getIdxByBinarySearch(0, 0, surplas);
-        container.insert(insertIt, surplas);
     }
 }
 
