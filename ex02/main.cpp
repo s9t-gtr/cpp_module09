@@ -31,7 +31,11 @@ int main(int argc, char **argv) {
     for (size_t i = 0; i < args.size(); ++i) {
         vec.push_back(new int(args[i]));
     }
-
+    if(sortCheck(vec)){
+        for (size_t i = 0; i < vec.size(); ++i) delete vec[i];
+        std::cout << "sorted" << std::endl;
+        return 0;
+    }
     std::cout << "Before:";
     for (size_t i = 0; i < vec.size(); ++i) {
         std::cout << " " << *vec[i];
@@ -65,9 +69,6 @@ int main(int argc, char **argv) {
     }
 
     // Clean up
-    for (size_t i = 0; i < vec.size(); ++i) {
-        delete vec[i];
-    }
-
+    for (size_t i = 0; i < vec.size(); ++i) delete vec[i];
     return 0;
 }
