@@ -1,75 +1,73 @@
 #include "PmergeMe.hpp"
-#include <sys/time.h>
+#include <ctime>
 #include <iomanip>
+#include <sstream>
 
 int g_compare_cnt = 0;
-void createPair(pairVec &pairs, intpVec &large, intpVec refVec){
-    for(size_t i=1;i<refVec.size();i+=2){
-        if(*(refVec[i-1]) < *(refVec[i])){
-            pairs[i/2].first = refVec[i-1];
-            pairs[i/2].second = refVec[i];
-        }else{
-            pairs[i/2].first = refVec[i];
-            pairs[i/2].second = refVec[i-1];
-        }
-        g_compare_cnt++; 
-        large[i/2] = pairs[i/2].second;
-    }
+
+void printTime(clock_t start, clock_t end, const std::string& container_type) {
+    double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000000;
+    std::cout << "Time to process a range of " << std::setw(5) << std::right << std::fixed << std::setprecision(5) << time << " us with " << container_type << std::endl;
 }
 
-bool sortCheck(intpVec& vec){
-    for(size_t i=1;i<vec.size();i++){
-        if(*(vec[i-1]) > *(vec[i]))
-            return false;
-    }
-    return true;
+void printComparisonCount(const std::string& container_type) {
+    std::cout << "Number of comparisons: " << g_compare_cnt << " with " << container_type << std::endl;
 }
 
-int main(int argc, char **argv){
+int main(int argc, char **argv) {
+    if (argc < 2) {
+        std::cerr << "Error: No arguments provided" << std::endl;
+        return 1;
+    }
+
     intVec args;
-    if(argc < 3 || !argCheck(argc, argv, args)){
-        std::cerr << "Error: invalid arguments" << std::endl;
-        return FAILURE;
+    if (!argCheck(argc, argv, args)) {
+        std::cerr << "Error: Invalid arguments" << std::endl;
+        return 1;
     }
 
-    std::cout << "Before: ";
-    for(size_t i=0;i<args.size();i++){
-        std::cout << args[i] << " ";
+    // Convert args to intpVec
+    intpVec vec;
+    for (size_t i = 0; i < args.size(); ++i) {
+        vec.push_back(new int(args[i]));
     }
+
+    // std::cout << "Before:";
+    // for (size_t i = 0; i < vec.size(); ++i) {
+    //     std::cout << " " << *vec[i];
+    // }
     std::cout << std::endl;
 
-    PmergeMe<std::vector<int *> > vecSort(args.size());
-    intpVec pArgs(args.size());
-    for(size_t i=0;i<args.size();i++){
-        pArgs[i] = &args[i];
+    // Test with vector
+    {
+        g_compare_cnt = 0;
+        PmergeMeVector pmergeVec(args.size());
+        clock_t start = clock();
+        pmergeVec.sort(vec);
+        clock_t end = clock();
+        std::cout << "After:";
+        // pmergeVec.printContainerElements();
+        printTime(start, end, "std::vector");
+        printComparisonCount("std::vector");
     }
 
+    // Test with list
+    {
+        g_compare_cnt = 0;
+        PmergeMeList pmergeList(args.size());
+        clock_t start = clock();
+        pmergeList.sort(vec);
+        clock_t end = clock();
+        std::cout << "After:";
+        // pmergeList.printContainerElements();
+        printTime(start, end, "std::list");
+        printComparisonCount("std::list");
+    }
 
-  	struct timeval start, end;
-	gettimeofday(&start, NULL); // 計測開始
-	vecSort.sort(pArgs);
-	gettimeofday(&end, NULL);   // 計測終了
-	std::cout << "compare_cnt: " << g_compare_cnt << std::endl;
-	g_compare_cnt = 0;
-	std::cout << "After: ";
-	vecSort.printContainerElements();
-	
-	double elapsed_us = (end.tv_sec - start.tv_sec) * 1e6 
-	                  + (end.tv_usec - start.tv_usec);
-	
-	std::cout << std::fixed << std::setprecision(5)
-	          << "Time to process a range of " << args.size()
-	          << " elements with std::[..] : " << elapsed_us << " us" << std::endl;
-    //std::cout << "=====================================================" << std::endl;
-    elapsed_us = 0;
-    PmergeMe<std::list<int *> > lstSort(args.size());
-	gettimeofday(&start, NULL); // 計測開始
-    lstSort.sort(pArgs);
-	gettimeofday(&end, NULL); // 計測開始
-	std::cout << "compare_cnt: " << g_compare_cnt << std::endl;
-	elapsed_us = (end.tv_sec - start.tv_sec) * 1e6 
-	                  + (end.tv_usec - start.tv_usec);
-	std::cout << std::fixed << std::setprecision(5)
-	          << "Time to process a range of " << args.size()
-	          << " elements with std::[..] : " << elapsed_us << " us" << std::endl;
+    // Clean up
+    for (size_t i = 0; i < vec.size(); ++i) {
+        delete vec[i];
+    }
+
+    return 0;
 }
