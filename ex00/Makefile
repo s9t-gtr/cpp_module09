@@ -6,7 +6,7 @@ DEPS = $(CPPS:%.cpp=$(DEPS_DIR)/%.d)
 
 NAME = btc
 CXX = c++
-XXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
 OBJS_DIR = objs
 DEPS_DIR = deps
