@@ -10,7 +10,7 @@
 
 #define FAILURE 1
 #define ASCII_TO_DIGIT 48
-extern int g_compare_cnt;
+// extern int g_compare_cnt;
 typedef std::vector<int> intVec;
 typedef std::vector<int *> intpVec;
 typedef std::list<int *> intpLst;

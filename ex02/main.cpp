@@ -3,16 +3,16 @@
 #include <iomanip>
 #include <sstream>
 
-int g_compare_cnt = 0;
+// int g_compare_cnt = 0;
 
-void printTime(clock_t start, clock_t end, const std::string& container_type) {
+void printTime(clock_t start, clock_t end, const std::string& container_type, size_t element_count) {
     double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000000;
-    std::cout << "Time to process a range of " << std::setw(5) << std::right << std::fixed << std::setprecision(5) << time << " us with " << container_type << std::endl;
+    std::cout << "Time to process a range of " << element_count << " elements with std::" << container_type << " : " << std::fixed << time << " us" << std::endl;
 }
 
-void printComparisonCount(const std::string& container_type) {
-    std::cout << "Number of comparisons: " << g_compare_cnt << " with " << container_type << std::endl;
-}
+// void printComparisonCount(const std::string& container_type) {
+//     std::cout << "Number of comparisons: " << g_compare_cnt << " with " << container_type << std::endl;
+// }
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -32,36 +32,36 @@ int main(int argc, char **argv) {
         vec.push_back(new int(args[i]));
     }
 
-    // std::cout << "Before:";
-    // for (size_t i = 0; i < vec.size(); ++i) {
-    //     std::cout << " " << *vec[i];
-    // }
+    std::cout << "Before:";
+    for (size_t i = 0; i < vec.size(); ++i) {
+        std::cout << " " << *vec[i];
+    }
     std::cout << std::endl;
 
     // Test with vector
     {
-        g_compare_cnt = 0;
+        // g_compare_cnt = 0;
         PmergeMeVector pmergeVec(args.size());
         clock_t start = clock();
         pmergeVec.sort(vec);
         clock_t end = clock();
         std::cout << "After:";
-        // pmergeVec.printContainerElements();
-        printTime(start, end, "std::vector");
-        printComparisonCount("std::vector");
+        pmergeVec.printContainerElements();
+        printTime(start, end, "vector", vec.size());
+        // printComparisonCount("std::vector");
     }
 
     // Test with list
     {
-        g_compare_cnt = 0;
+        // g_compare_cnt = 0;
         PmergeMeList pmergeList(args.size());
         clock_t start = clock();
         pmergeList.sort(vec);
         clock_t end = clock();
-        std::cout << "After:";
+        // std::cout << "After:";
         // pmergeList.printContainerElements();
-        printTime(start, end, "std::list");
-        printComparisonCount("std::list");
+        printTime(start, end, "list", vec.size());
+        // printComparisonCount("std::list");
     }
 
     // Clean up

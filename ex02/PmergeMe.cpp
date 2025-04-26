@@ -76,7 +76,7 @@ intpVec::iterator PmergeMeVector::getIdxByBinarySearch(int *largeValueInInsertPa
             lower = mid + 1;
         else
             upper = mid;
-        g_compare_cnt++;
+        // g_compare_cnt++;
     }
     return container.begin() + upper;
 }
@@ -182,7 +182,7 @@ intpLst::iterator PmergeMeList::getIdxByBinarySearch(int *largeValueInInsertPair
             lower = mid + 1;
         else
             upper = mid;
-        g_compare_cnt++;
+        // g_compare_cnt++;
     }
     intpLst::iterator result = container.begin();
     std::advance(result, upper);
@@ -248,7 +248,7 @@ void createPair(pairVec &pairs, intpVec &large, intpVec refVec) {
             pairs[i/2].first = refVec[i];
             pairs[i/2].second = refVec[i-1];
         }
-        g_compare_cnt++; 
+        // g_compare_cnt++; 
         large[i/2] = pairs[i/2].second;
     }
 }
